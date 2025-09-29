@@ -111,4 +111,12 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Chrome Extension
+*.pem
+
+# Env files
+.env
+.env.local
+.env.*.local
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,react,visualstudiocode,windows
