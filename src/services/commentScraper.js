@@ -24,7 +24,13 @@ export class CommentScraper {
   constructor() {
     this.comments = [];
     this.processedElements = new Set();
+    this.onCommentFound = null;
     this.initObservers();
+  }
+
+  //콜백 함수
+  setOnCommentFound(callback) {
+    this.onCommentFound = callback;
   }
 
   // DOM 변화 감지
@@ -90,6 +96,10 @@ export class CommentScraper {
 
             // 콘솔에 댓글 객체 그대로 출력
             console.log(comment);
+            // 콜백 함수 호출
+            if (this.onCommentFound) {
+              this.onCommentFound(comment);
+            }
           }
         }
       });
