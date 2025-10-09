@@ -1,128 +1,114 @@
 import { CommentScraper } from '../services/commentScraper.js';
+import { analyzeComment } from '../services/api.js';
 
 class ContentScript {
   constructor() {
     this.commentScraper = CommentScraper.getInstance();
+
+    this.commentQueue = []; // 댓글 대기열 생성
+    this.batchTimer = null; // 댓글 타이머 생성
     this.isProcessing = false;
+
+    this.commentScraper.setOnCommentFound((comment) => this.addCommentToQueue(comment));
+
     this.setupMessageListener();
     this.init();
   }
 
   setupMessageListener() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-
-      console.log("★★★ content.js: background로부터 메시지 수신 성공!", message);
-
       if (message.type === 'URL_CHANGED') {
         console.clear();
         this.commentScraper.clearComments();
-        console.log('URL 변경 감지: 콘솔 및 댓글 데이터 초기화 완료.');
-        this.startScraping();
+        this.isProcessing = false; // 깃발 초기화
+        console.log('URL 변경 감지: 데이터 초기화 완료.');
+        this.init();
       }
       return true;
     });
   }
 
   init() {
-    console.log('KnowCommentAI Content Script 초기화 - 댓글 스크래핑 시작');
+    console.log('KnowCommentAI Content Script 초기화 완료.');
+    setTimeout(() => {
+      console.log('초기 댓글 탐색 시작');
+      this.commentScraper.scrapeComments();
+    }, 1000);
+  }
+
+  addCommentToQueue(comment) {
+    if (comment.element.dataset.apiQueued === 'true') return;
+    comment.element.dataset.apiQueued = 'true';
+
+    const textElement = comment.element.querySelector('#content-text, .u_cbox_contents, span._ap3a[dir="auto"]');
+
+    if (textElement) {
+      // 로딩 UI 생성
+      const loadingElement = document.createElement('div');
+      loadingElement.className = 'know-comment-ai-loading';
+      loadingElement.textContent = '댓글 분석 중... 🤖';
     
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.startScraping());
-    } else {
-      this.startScraping();
-    }
+    textElement.style.display = 'none';
+    textElement.parentNode.insertBefore(loadingElement, textElement.nextSibling);
 
-    window.addEventListener('scroll', this.throttle(() => {
-      this.scrapeNewComments();
-    }, 2000));
-
-    this.observeDOMChanges();
+    // 로딩 UI 제거, 원본 댓글 comment 객체에 저장
+    comment.textElement = textElement;
+    comment.loadingElement = loadingElement;
   }
 
-  async startScraping() {
-    if (this.isProcessing) return;
-    
-    this.isProcessing = true;
-    console.log('새로운 페이지에서 댓글 스크래핑을 시작합니다.');
+  this.commentQueue.push(comment);
+  
+  clearTimeout(this.batchTimer);
 
-    try {
-      await this.scrapeNewComments();
-    } catch (error) {
-      console.error('댓글 스크래핑 중 오류:', error);
-    } finally {
-      this.isProcessing = false;
-    }
+  this.batchTimer = setTimeout(() => {
+    this.startBatchProcessing();
+  }, 500);
+}
+
+// API 비어있을 때만 실행
+startBatchProcessing() {
+  if (this.isProcessing) {
+    console.log('이미 다른 묶음을 처리 중입니다. 잠시 대기합니다.');
+    return;
   }
+  this.processBatches();
+}
+  
+// 원본 댓글 5개씩 병렬 처리
+async processBatches() {
+  this.isProcessing = true;
 
-  async scrapeNewComments() {
-    try {
-      const allComments = this.commentScraper.getComments();
-      const newComments = await this.commentScraper.scrapeComments(); // 새로운 댓글 스크래핑
-      
-      const newCommentsCount = newComments.length - allComments.length;
+  // 탐지된 댓글이 없을 때까지 반복
+  while (this.commentQueue.length > 0) {
+    const chunk = this.commentQueue.splice(0, 5); // 앞에서부터 5개씩 꺼냄
+    console.log(`📤 ${chunk.length}개 묶음을 병렬로 API에 전송합니다.`);
 
-      if (newCommentsCount > 0) {
-         // 새로 추가된 댓글만 로그로 출력
-        const newlyAdded = newComments.slice(allComments.length);
-        newlyAdded.forEach((comment) => {
-           console.log('새 댓글:', comment);
-        });
+    // api 병렬 처리
+    const promises = chunk.map(comment => analyzeComment(comment));
+    const apiResults = await Promise.all(promises);
 
-        console.log(`총 댓글 ${newComments.length}개, 최근 ${newCommentsCount}개 추가`);
-      }
-      
-    } catch (error) {
-      console.error('새 댓글 스크래핑 중 오류:', error);
-    }
-  }
+    console.log(`📥 ${chunk.length}개 묶음의 응답을 모두 수신했습니다.`);
 
-  observeDOMChanges() {
-    const observer = new MutationObserver((mutations) => {
-      let shouldProcess = false;
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              if (this.isCommentElement(node)) {
-                shouldProcess = true;
-              }
-            }
-          });
-        }
-      });
-      if (shouldProcess) {
-        setTimeout(() => this.scrapeNewComments(), 1000);
+    // 5개의 결과에 대해 UI 업데이트
+    apiResults.forEach((result, index) => {
+      const originalComment = chunk[index];
+      if (originalComment.loadingElement) originalComment.loadingElement.remove();
+
+      if (result && result.status === 'purified') {
+        const purifiedElement = document.createElement('div');
+        purifiedElement.className = 'know-comment-ai-purified';
+        purifiedElement.style.fontSize = '14px'
+        purifiedElement.innerHTML = `<span style="font-size: 12px; color: #6694FF;">[순화된 댓글입니다]</span><br>${result.purified_text}`;
+        originalComment.textElement.parentNode.insertBefore(purifiedElement, originalComment.textElement.nextSibling);
+      } else {
+        if(originalComment.textElement) originalComment.textElement.style.display = '';
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  isCommentElement(element) {
-    const commentSelectors = [
-      '[class*="comment"]', '[class*="reply"]', '[id*="comment"]'
-    ];
-    return commentSelectors.some(selector => 
-      element.matches(selector) || element.querySelector(selector)
-    );
-  }
-
-  throttle(func, delay) {
-    let timeoutId;
-    let lastExecTime = 0;
-    return function (...args) {
-      const currentTime = Date.now();
-      if (currentTime - lastExecTime > delay) {
-        func.apply(this, args);
-        lastExecTime = currentTime;
-      } else {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          func.apply(this, args);
-          lastExecTime = Date.now();
-        }, delay - (currentTime - lastExecTime));
-      }
-    };
-  }
+  this.isProcessing = false;
+  console.log('✅ 모든 묶음 처리가 완료되었습니다.');
+}
 }
 
 new ContentScript();
