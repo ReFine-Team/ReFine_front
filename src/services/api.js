@@ -1,4 +1,4 @@
-import { API_BASEURL } from '../apikey.js';
+import { API_BASEURL } from './apikey.js';
 
 // API 요청
 export async function analyzeComment(comment) {
