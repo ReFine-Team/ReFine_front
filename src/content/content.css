@@ -1,0 +1,73 @@
+/* 각 사이트별 댓글 텍스트 영역을 미리 숨깁니다 */
+#content-text, /* 유튜브 */
+.u_cbox_contents, /* 네이버 뉴스 */
+ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
+  display: none !important;
+}
+
+/* 로딩 표시 */
+.know-comment-ai-loading { 
+  color: #888; 
+  font-style: italic; 
+  font-size: 14px; 
+}
+
+/* 토글 스위치 스타일 */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  width: 50px;
+  height: 22px;
+  background-color: #ccc;
+  border-radius: 11px;
+  padding: 2px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-left: 12px;
+  vertical-align: middle;
+  user-select: none;
+}
+
+/* 활성화 상태 */
+.toggle-switch.active {
+  background-color: #BFD2FF; /* 활성 상태 색상 */
+  flex-direction: row-reverse; /* 내부 아이템 순서 뒤집기 */
+}
+
+.toggle-label-inside {
+  font-size: 11px;
+  color: white;
+  text-align: center;
+  flex-grow: 1; /* 남는 공간 채우기 */
+  user-select: none;
+  font-weight: normal;
+}
+
+.toggle-circle {
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  flex-shrink: 0; /* 원 크기 유지 */
+  transition: transform 0.1s ease-in-out;
+}
+
+/* 🌙 다크 모드 대응 */
+@media (prefers-color-scheme: dark) {
+  .toggle-switch {
+    background-color: #606081;
+  }
+
+  .toggle-switch.active {
+    background-color: #7A9CD0;
+  }
+
+  .toggle-label-inside {
+    color: #f1f1f1;
+  }
+
+  .know-comment-ai-loading {
+    color: #bbb;
+  }
+}
