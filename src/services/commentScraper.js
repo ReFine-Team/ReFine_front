@@ -67,6 +67,10 @@ export class CommentScraper {
       const elements = document.querySelectorAll(selector);
 
       elements.forEach((element) => {
+        const commentBox = element.closest('.u_cbox_comment_box, ._a9zr, #main');
+        if (commentBox && commentBox.dataset.knowCommentProcessed)return;
+        
+        if (element.closest('.know-comment-ai-purified-container')) return;
         // subscribe_wrap 내부이면 제외
         if (element.closest('.subscribe_wrap')) return;
 
@@ -77,22 +81,6 @@ export class CommentScraper {
           if (comment && !this.isDuplicate(comment) && this.isValidComment(comment)) {
             this.comments.push(comment);
             this.processedElements.add(element);
-
-            // 댓글 전체 컨테이너에 파란색 표시 적용
-            let container = element;
-            for (let i = 0; i < 3; i++) {
-              if (
-                container.parentElement &&
-                container.parentElement.textContent?.includes(element.textContent)
-              ) {
-                container = container.parentElement;
-              } else {
-                break;
-              }
-            }
-            container.style.outline = '2px solid #007BFF';
-            container.style.outlineOffset = '2px';
-            comment.element = container;
 
             // 콘솔에 댓글 객체 그대로 출력
             console.log(comment);
@@ -118,7 +106,8 @@ export class CommentScraper {
     return {
       id: this.generateStableId(element),
       text,
-      element,
+      element: element.closest('.u_cbox_comment_box, ._a9zr, #main') || element.parentElement, // 전체 컨테이너
+      textElement: element, // 실제 텍스트 요소,
       isReply: this.isReplyComment(element),
     };
   }
