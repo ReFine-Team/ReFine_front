@@ -1,0 +1,288 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* 모든 가로 스크롤을 원천적으로 방지 */
+    /* ★★★ 1. 세로 스크롤 시 스냅 기능을 활성화합니다 ★★★ */
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+body { 
+    font-family: 'Pretendard';
+    color: #333; /* 기본 텍스트 색상 지정 */
+    line-height: 1.7;
+}
+
+body::before {
+    content: '';
+    position: fixed; /* 화면에 배경을 완전히 고정시킵니다 ★★★ */
+    top: 0;
+    left: 0;
+    width: 100vw;  /* 화면 전체 너비 */
+    height: 100vh; /* 화면 전체 높이 */
+
+    background-image: url('../src/assets/Objects.png');
+    background-repeat: no-repeat;
+    background-position: center; /* 이미지를 중앙에 배치 */
+    background-size: cover; /* 이미지가 비율을 유지하며 화면을 가득 채움 */
+    
+    z-index: -1;  /* 3. 콘텐츠보다 뒤에 있도록 순서를 내림*/
+    opacity: 0.8; /* 이미지 투명도 */
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column; /* header와 main을 세로로 쌓음 */
+    width: 100%;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 3rem; /* 상하 패딩은 header/main에서 관리 */
+}
+
+header {
+    padding: 2.5rem 0; /* 헤더 상하 여백 증가 */
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.logo {
+    width: 130px; /* 고정 너비로 변경하여 비율 유지 */
+    height: auto;
+    position: relative;
+    flex-shrink: 0; /*로고가 줄어들지 않도록*/
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #6694FF;
+}
+
+.hero {
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    transform: translateY(-50px);
+    scroll-snap-align: center;
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 700px;
+    width: 100%;
+    transform: translateY(-50px);
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #6694FF;
+    color: #fff;
+    padding: 0.8rem 2rem;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(90, 135, 255, 0.3);
+}
+
+.description1 {
+    font-size: 4rem;
+    color: #444;
+    font-family: 'Pretendard ExtraBold';
+    font-weight: 800;
+    letter-spacing: 2rem;
+    margin-right: -2rem;
+    margin-bottom: 1rem;
+}
+
+.description2 {
+    font-size: 1.7rem;
+    color: #444;
+    font-family: 'Pretendard SemiBold';
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.detailed-description {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 2.5rem;
+}
+
+/* --- Reasons Section --- */
+.reasons-section {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 4rem 0; /* 섹션의 상하 여백 */
+    width: 100%;
+    margin: 0 auto;
+    text-align: left;
+    scroll-snap-align: center;
+    /* 콘텐츠를 이 섹션 안에서 중앙 정렬하기 위한 Flexbox 설정 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 세로 중앙 정렬 */
+}
+
+.reasons-section h2 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.reasons-intro {
+    font-size: 1.1rem;
+    color: #5A718D;
+    margin-bottom: 4rem;
+    line-height: 1.8;
+}
+
+.reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem; /* 카드 사이의 간격 */
+    text-align: left;
+}
+
+.reason-card {
+    background-color: #FFFFFF;
+    padding: 2.5rem 2rem;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reason-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(102, 148, 255, 0.15);
+}
+
+.reason-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.8rem;
+}
+
+.reason-card p {
+    font-size: 1rem;
+    color: #5A718D;
+}
+
+.reason-outro {
+    font-size: 1.1rem;
+    color: #5A718D;
+    margin-top: 4rem;
+    line-height: 1.8;
+    text-align: left;
+}
+
+/* --- Scroll Animation --- */
+
+/* 애니메이션 시작 전, 카드를 투명하고 아래로 50px 이동시킨 상태로 숨겨둠 */
+.reason-card {
+    opacity: 0; /* 처음에는 투명하게 */
+    transform: translateY(50px); /* 아래로 50px 이동 */
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* 부드러운 전환 효과 */
+}
+
+.reasons-section h2,
+.reasons-intro {
+    opacity: 0;
+    transform: translateY(20px); /* 더 짧은 거리에서 시작하여 부드러운 느낌 강조 */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* 카드가 원래 위치로 올라오며 나타남 */
+.reason-card.is-visible,
+.reasons-section h2.is-visible,
+.reasons-intro.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 카드가 순서대로 나타나도록 지연 시간 설정 */
+.reason-card:nth-child(2) {
+    transition-delay: 0.2s;
+}
+.reason-card:nth-child(3) {
+    transition-delay: 0.4s;
+}
+
+@media (max-width: 992px) { 
+    .container {
+        padding: 0 2rem;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .reasons-grid {
+        grid-template-columns: 1fr; /* 태블릿에서는 카드를 세로로 쌓음 */
+        gap: 2rem;
+    }
+
+    .reason-card {
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .reasons-section h2 {
+        font-size: 2.2rem;
+    }
+
+    .reasons-intro {
+        font-size: 1rem;
+    }
+}
