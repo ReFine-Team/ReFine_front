@@ -61,7 +61,7 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
   background-color: transparent;
   font-size: 13px;
   font-weight: 600;
-  color: #333;
+  color: #262626;
   font-family: inherit; /* 페이지의 기본 폰트를 따름 */
 
   /* 위치 및 기타 */
@@ -79,10 +79,10 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
 .refine-info-button.naver {
   border: 1px solid #dbdbdb;
   background: none;
-  color: #555;
+  color: #262626;
   font-weight: 500;
   font-size: 12px;
-  padding: 1.5px 3px;
+  padding: 1px 3px;
   margin-left: 8px; /* '공감비율순'과의 간격 */
   border-radius: 8px;
   cursor: pointer;
@@ -129,8 +129,8 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
   }
 
   .refine-info-button {
-    border-color: #eee;
-    color: #eee;
+    border-color: #dbdbdb;
+    color: #aaa;
   }
 
   .refine-info-button:hover {
@@ -138,8 +138,8 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
   }
 
   .refine-info-button.naver {
-    border-color: #555;
-    color: #aaa;
+    border-color: #a7a7a7;
+    color: #555;
   }
 
   .refine-info-button.instagram {
