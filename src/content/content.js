@@ -4,28 +4,34 @@ import { analyzeComment } from '../services/api.js';
 class ContentScript {
   constructor() {
     this.commentScraper = CommentScraper.getInstance();
-
     this.commentQueue = [];
     this.batchTimer = null;
     this.isProcessing = false;
+    this.buttonObserver = null; // 버튼 삽입을 위한 별도의 Observer
 
     this.injectGlobalStyles();
-
     this.commentScraper.setOnCommentFound((comment) => this.addCommentToQueue(comment));
-
     this.setupMessageListener();
     this.init();
+
+    window.addEventListener('beforeunload', () => this.cleanup());
+  }
+
+  cleanup() {
+    console.log('KnowCommentAI: 페이지를 떠나기 전 정리 작업 수행');
+    // MutationObserver 연결 해제
+    if (this.buttonObserver) {
+      this.buttonObserver.disconnect();
+      this.buttonObserver = null;
+    }
   }
 
   injectGlobalStyles() {
-    // 기존에 추가된 스타일이 있으면 중복 방지
     if (document.getElementById('know-comment-ai-styles')) return;
-
     const link = document.createElement('link');
     link.id = 'know-comment-ai-styles';
     link.rel = 'stylesheet';
     link.type = 'text/css';
-    // content.css 파일을 로드
     link.href = chrome.runtime.getURL('content.css');
     document.head.appendChild(link);
     console.log('KnowCommentAI: 외부 CSS 파일 로드 완료');
@@ -34,6 +40,7 @@ class ContentScript {
   setupMessageListener() {
     chrome.runtime.onMessage.addListener((message) => {
       if (message.type === 'URL_CHANGED') {
+        this.cleanup();
         console.clear();
         this.commentScraper.clearComments();
         this.commentQueue = [];
@@ -51,6 +58,84 @@ class ContentScript {
       console.log('초기 댓글 탐색 시작');
       this.commentScraper.scrapeComments();
     }, 1000);
+
+    this.observeForButtons();
+  }
+
+  // 페이지 변화를 감지하여 버튼을 삽입하는 새로운 메서드 
+  observeForButtons() {
+    // 기존 Observer가 있다면 중복 실행 방지
+    if (this.buttonObserver) this.buttonObserver.disconnect();
+
+    this.buttonObserver = new MutationObserver((mutations) => {
+      // DOM에 변화가 있을 때마다 버튼 주입을 시도
+      this.injectInfoButton();
+    });
+
+    this.buttonObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  // 각 사이트의 특정 위치에 '왜 순화됐나요?' 버튼 주입
+  injectInfoButton() {
+    // 컨텍스트가 유효하지 않으면 즉시 중단
+    if (!chrome.runtime || !chrome.runtime.id) {
+        this.cleanup();
+        return;
+    }
+    const landingPageUrl = chrome.runtime.getURL('landing.html');
+
+    // YouTube
+    const ytAnchor = document.querySelector('#sort-menu');
+    if (ytAnchor && !ytAnchor.querySelector('.refine-info-button')) {
+      const button = document.createElement('button');
+      button.textContent = '왜 순화됐나요?';
+      button.className = 'refine-info-button youtube';
+      button.onclick = () => window.open(landingPageUrl, '_blank');
+      ytAnchor.appendChild(button);
+      console.log(`✅ Re:Fine: YouTube에 버튼을 추가했습니다.`);
+    }
+
+    // Naver News
+    const naverList = document.querySelector('ul.u_cbox_sort_option_list');
+    if (naverList && !naverList.querySelector('.refine-info-button')) {
+      const listItem = document.createElement('li');
+      const button = document.createElement('button');
+      button.textContent = '왜 순화됐나요?';
+      button.className = 'refine-info-button naver';
+      button.onclick = () => window.open(landingPageUrl + '#reasons', '_blank');
+      listItem.appendChild(button);
+      naverList.appendChild(listItem);
+      console.log(`✅ Re:Fine: Naver 뉴스에 버튼을 추가했습니다.`);
+    }
+
+    // Instagram
+    // 아직 처리되지 않은 모든 게시물 컨테이너 찾기
+    const instaPostContainers = document.querySelectorAll('div._aasi:not([data-refine-processed])');
+    
+    instaPostContainers.forEach(container => {
+        // 중복 추가를 막기 위해 즉시 처리되었음을 표시
+        container.setAttribute('data-refine-processed', 'true');
+
+        // 컨테이너 안에서 '옵션'이라는 라벨을 가진 '...' 버튼(_aasm) 찾기
+        const optionsButtonDiv = container.querySelector('div._aasm');
+
+        if (optionsButtonDiv) {
+            const button = document.createElement('button');
+            button.textContent = '왜 순화됐나요?';
+            button.className = 'refine-info-button instagram';
+            button.onclick = (e) => {
+                e.stopPropagation(); // '...' 메뉴가 열리는 것을 방지
+                window.open(landingPageUrl, '_blank');
+            };
+            
+            // '...' 버튼(_aasm) 바로 앞에 우리 버튼을 삽입
+            optionsButtonDiv.parentElement.insertBefore(button, optionsButtonDiv);
+            console.log(`✅ Re:Fine: Instagram 게시물 헤더에 버튼을 추가했습니다.`);
+        }
+    });
   }
 
   addCommentToQueue(comment) {
@@ -64,23 +149,14 @@ class ContentScript {
   }
 
   startBatchProcessing() {
-    if (this.isProcessing) {
-      console.log('이미 다른 묶음을 처리 중입니다. 잠시 대기합니다.');
-      return;
-    }
+    if (this.isProcessing) return;
     this.processBatches();
   }
 
   async processBatches() {
     this.isProcessing = true;
-
-    if (this.commentQueue.length === 0) {
-      this.isProcessing = false;
-      return;
-    }
-
+    if (this.commentQueue.length === 0) { this.isProcessing = false; return; }
     const chunk = this.commentQueue.splice(0, 5);
-
     chunk.forEach(comment => {
       const textElement = comment.element.querySelector('#content-text, .u_cbox_contents, ._a9zr span._ap3a[dir="auto"]');
       if (textElement) {
@@ -92,25 +168,17 @@ class ContentScript {
         comment.loadingElement = loadingElement;
       }
     });
-
-    console.log(`📤 ${chunk.length}개 묶음을 병렬로 API에 전송합니다.`);
     const promises = chunk.map(comment => analyzeComment(comment));
     const apiResults = await Promise.all(promises);
-
-    console.log(`📥 ${chunk.length}개 묶음의 응답을 모두 수신했습니다.`);
-
     apiResults.forEach((result, index) => {
       const originalComment = chunk[index];
       if (originalComment.loadingElement) originalComment.loadingElement.remove();
       if (!originalComment.textElement) return;
-
       const textElement = originalComment.textElement;
-
       if (result && result.status === 'purified') {
         const purifiedContainer = document.createElement('div');
         purifiedContainer.className = 'know-comment-ai-purified-container';
         purifiedContainer.innerHTML = `<span style="font-size: 12px; color: #6694FF;">[순화된 댓글입니다]</span><br>${result.purified_text}`;
-
         const hostname = window.location.hostname;
         if (hostname.includes('youtube.com') || hostname.includes('naver.com')) {
           purifiedContainer.style.fontSize = '14px';
@@ -118,57 +186,39 @@ class ContentScript {
         } else if (hostname.includes('instagram.com')) {
           this.createInstagramToggleButton(textElement, purifiedContainer);
         }
-
         textElement.parentNode.insertBefore(purifiedContainer, textElement);
       } else {
         textElement.style.setProperty('display', 'inline', 'important');
       }
     });
-
     this.isProcessing = false;
     if (this.commentQueue.length > 0) this.startBatchProcessing();
   }
 
   createToggleSwitch(originalComment, purifiedContainer, hostname) {
     const textElement = originalComment.textElement;
-
-    const actionsContainer = hostname.includes('youtube.com')
-      ? originalComment.element.querySelector('#toolbar')
-      : originalComment.element.querySelector('.u_cbox_tool');
-
+    const actionsContainer = hostname.includes('youtube.com') ? originalComment.element.querySelector('#toolbar') : originalComment.element.querySelector('.u_cbox_tool');
     if (actionsContainer && !actionsContainer.querySelector('.toggle-switch')) {
       const switchDiv = document.createElement('div');
       switchDiv.className = 'toggle-switch active';
-
       const label = document.createElement('span');
       label.className = 'toggle-label-inside';
       label.textContent = '순화';
-
       const circle = document.createElement('span');
       circle.className = 'toggle-circle';
-
       switchDiv.appendChild(label);
       switchDiv.appendChild(circle);
-
       let isPurified = true;
       switchDiv.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         isPurified = !isPurified;
         switchDiv.classList.toggle('active', isPurified);
         label.textContent = isPurified ? '순화' : '원본';
         purifiedContainer.style.display = isPurified ? '' : 'none';
-
-        if (isPurified) {
-          textElement.style.setProperty('display', 'none', 'important');
-        } else {
-          textElement.style.setProperty('display', 'inline', 'important');
-        }
+        textElement.style.setProperty('display', isPurified ? 'none' : 'inline', 'important');
       };
-
       if (hostname.includes('naver.com')) {
         const replyCountSpan = actionsContainer.querySelector('.u_cbox_reply_cnt');
-
         if (replyCountSpan) {
           replyCountSpan.parentNode.insertBefore(switchDiv, replyCountSpan.nextSibling);
         } else {
@@ -187,7 +237,6 @@ class ContentScript {
 
   createInstagramToggleButton(textElement, purifiedContainer) {
     const actionsSpan = textElement.closest('._a9zr')?.querySelector('span[class*="x1lliihq"]');
-
     if (actionsSpan && !actionsSpan.querySelector('.know-comment-ai-toggle-btn')) {
       const toggleButton = document.createElement('button');
       toggleButton.textContent = '원본';
@@ -197,35 +246,25 @@ class ContentScript {
         fontSize: '12px', fontWeight: 'bold', fontFamily: 'inherit', cursor: 'pointer', padding: '0',
         marginLeft: '3px', marginRight: '3px', lineHeight: 'inherit'
       });
-
       let isPurified = true;
       toggleButton.onclick = () => {
         isPurified = !isPurified;
         purifiedContainer.style.display = isPurified ? '' : 'none';
         toggleButton.textContent = isPurified ? '원본' : '순화';
-
-        if (isPurified) {
-          textElement.style.setProperty('display', 'none', 'important');
-        } else {
-          textElement.style.setProperty('display', 'inline', 'important');
-        }
+        textElement.style.setProperty('display', isPurified ? 'none' : 'important');
       };
-
       let replyButton = null;
       const allButtons = actionsSpan.querySelectorAll('button, div[role="button"]');
       for (const btn of allButtons) {
         if (btn.textContent === '답글 달기') {
-          replyButton = btn;
-          break;
+          replyButton = btn; break;
         }
       }
-
       if (replyButton) {
         replyButton.insertAdjacentElement('afterend', toggleButton);
       } else {
         actionsSpan.appendChild(toggleButton);
       }
-
       const moreButtonDiv = actionsSpan.querySelector('div._a9ze');
       if (moreButtonDiv) {
         moreButtonDiv.style.marginLeft = 'auto';
