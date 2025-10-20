@@ -203,7 +203,8 @@ class ContentScript {
       switchDiv.className = 'toggle-switch active';
       const label = document.createElement('span');
       label.className = 'toggle-label-inside';
-      label.textContent = '순화';
+      label.textContent = '원본';
+
       const circle = document.createElement('span');
       circle.className = 'toggle-circle';
       switchDiv.appendChild(label);
@@ -213,7 +214,7 @@ class ContentScript {
         e.preventDefault(); e.stopPropagation();
         isPurified = !isPurified;
         switchDiv.classList.toggle('active', isPurified);
-        label.textContent = isPurified ? '순화' : '원본';
+        label.textContent = isPurified ? '원본' : '순화';
         purifiedContainer.style.display = isPurified ? '' : 'none';
         textElement.style.setProperty('display', isPurified ? 'none' : 'inline', 'important');
       };
