@@ -26,7 +26,7 @@ body::before {
     width: 100vw;  /* 화면 전체 너비 */
     height: 100vh; /* 화면 전체 높이 */
 
-    background-image: url('../src/assets/Objects.png');
+    background-image: url('assets/Objects.png');
     background-repeat: no-repeat;
     background-position: center; /* 이미지를 중앙에 배치 */
     background-size: cover; /* 이미지가 비율을 유지하며 화면을 가득 채움 */

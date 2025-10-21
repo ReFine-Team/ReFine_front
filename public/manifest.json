@@ -29,7 +29,12 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/*"],
+      "resources": [
+        "landing.html",
+        "landing.css",
+        "animations.js",
+        "assets/*"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

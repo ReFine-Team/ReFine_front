@@ -5,13 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Re:Fine</title>
   <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+    /* 폰트와 헤더 스타일을 가장 먼저 적용 */
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+    header {
+      padding: 2.5rem 0;
+    }
+  .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #5A718D;
+      font-weight: 700;
+      font-size: 1rem; /* 폰트 크기 명시 */
+    }
+  </style>  
 </head>
 <body>
   <div class="wrapper">
     <div class="container">
       <header>
         <nav>
-          <img class="logo" src="../src/assets/Logo.png" alt="Re:Fine Logo" />
+          <img class="logo" src="assets/Logo.png" alt="Re:Fine Logo" />
           <div class="nav-links">
             <span><a href="#hero">소개</a></span>
             <span><a href="#guide">사용 가이드</a></span>
@@ -29,6 +50,7 @@
             </p>
             <p class="description2">
               ‘refine: 개선하다’와 ‘reply: 답하다’<br>
+            </p>
             <p class="detailed-description">
               이 두 단어를 합쳐 더 나은 댓글 생태계, 인터넷 환경을 만들어 나가자는 의미를 담았습니다.
               <br><br>저희 Re:Fine은 온라인 댓글 속 언어를 인공지능이 실시간으로 분석하여 악성 댓글을 감지하고, 순화된 표현으로 대체하거나 표시해주는 브라우저 확장 프로그램입니다. 
@@ -99,8 +121,6 @@
         </div>
         <p class="reason-outro">
           <br>위 기준은 일반적인 가이드라인이며, 상황에 따라 다르게 적용될 수 있습니다.
-          <br>Re:fine은 단순한 키워드 필터링이 아닌, AI 학습 기반의 감정 분석과 혐오 발언 판별 모델을 통해 댓글의 맥락을 종합적으로 해석합니다.
-          <br>이를 바탕으로 긍정·부정 감정과 혐오 여부를 함께 분석하여 필터링이 필요한 문장을 정교하게 판단합니다.
         </p>
       </section>
 

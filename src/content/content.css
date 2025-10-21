@@ -54,6 +54,63 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
   transition: transform 0.1s ease-in-out;
 }
 
+/* 기본 스타일 */
+.refine-info-button {
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  padding: 4px 10px;
+  background-color: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  font-family: inherit; /* 페이지의 기본 폰트를 따름 */
+
+  /* 위치 및 기타 */
+  margin-left: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.refine-info-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 네이버 전용 스타일 */
+.refine-info-button.naver {
+  border: 1px solid #dbdbdb;
+  background: none;
+  color: #262626;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 1px 3px;
+  margin-left: 8px; /* '공감비율순'과의 간격 */
+  border-radius: 8px;
+  cursor: pointer;
+  
+  /* 다른 링크들과 세로 정렬을 맞추기 위한 스타일  */
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  top: -6px; /* 살짝 위로 올려서 정렬 */
+}
+
+/* 인스타그램 전용 스타일 */
+.refine-info-button.instagram {
+  border: 1px solid #dbdbdb;
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 4px 10px;
+  margin-right: 16px; /* '...' 버튼과의 간격 */
+  border-radius: 8px;
+}
+
+#sort-menu {
+  display: flex;
+  align-items: center; /* 내부 모든 요소들을 세로 중앙에 완벽하게 정렬 */
+}
+
 /* 🌙 다크 모드 대응 */
 @media (prefers-color-scheme: dark) {
   .toggle-switch {
@@ -70,5 +127,24 @@ ul li span._ap3a[dir="auto"] /* 인스타그램 */ {
 
   .know-comment-ai-loading {
     color: #bbb;
+  }
+
+  .refine-info-button {
+    border-color: #dbdbdb;
+    color: #aaa;
+  }
+
+  .refine-info-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .refine-info-button.naver {
+    border-color: #a7a7a7;
+    color: #555;
+  }
+
+  .refine-info-button.instagram {
+    border-color: #555;
+    color: #eee;
   }
 }
