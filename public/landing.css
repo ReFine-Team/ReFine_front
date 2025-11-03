@@ -7,7 +7,7 @@
 html, body {
     width: 100%;
     overflow-x: hidden; /* 모든 가로 스크롤을 원천적으로 방지 */
-    /* ★★★ 1. 세로 스크롤 시 스냅 기능을 활성화합니다 ★★★ */
+    /*세로 스크롤 시 스냅 기능을 활성화*/
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
 }
@@ -20,18 +20,16 @@ body {
 
 body::before {
     content: '';
-    position: fixed; /* 화면에 배경을 완전히 고정시킵니다 ★★★ */
+    position: fixed; /* 화면에 배경을 완전히 고정*/
     top: 0;
     left: 0;
     width: 100vw;  /* 화면 전체 너비 */
     height: 100vh; /* 화면 전체 높이 */
-
     background-image: url('assets/Objects.png');
     background-repeat: no-repeat;
     background-position: center; /* 이미지를 중앙에 배치 */
     background-size: cover; /* 이미지가 비율을 유지하며 화면을 가득 채움 */
-    
-    z-index: -1;  /* 3. 콘텐츠보다 뒤에 있도록 순서를 내림*/
+    z-index: -1;  /* 콘텐츠보다 뒤에 있도록 순서를 내림*/
     opacity: 0.8; /* 이미지 투명도 */
 }
 
@@ -166,32 +164,35 @@ nav {
     justify-content: center; /* 세로 중앙 정렬 */
 }
 
-  .guide-header {
+.guide-header {
     margin-bottom: 10px;
     padding: 0 40px; /* 헤더 텍스트 좌우 여백 추가 */
     /* top: 30%; */
     align-self: flex-start; /* 왼쪽에 정렬 */
     width: 100%;
   }
-  .guide-header h1 {
+
+.guide-header h1 {
     font-size: 2.8rem;
     font-weight: 800;
     color: #2c3e50;
     text-align: left;
-  }
-  .guide-header p {
+}
+  
+.guide-header p {
     font-size: 1.1rem; /* 헤더 설명 텍스트 크기 */
     color: #5A718D;
     line-height: 1.6;
     text-align: left;
-  }
+}  
   
-  .guide-main {
+.guide-main {
     display: flex;
     align-items: center;
     gap: 80px; /* 좌우 섹션 사이의 간격 증가 */
     width: 100%; /* guide-container 내부에서 전체 너비 사용 */
-  }
+}
+
   .guide-main > .monitor-wrapper {
     flex: 1.5; /* 기존 monitor-section의 너비 비율을 그대로 가져옴 */
 }
@@ -203,30 +204,31 @@ nav {
   max-width: 100%;
 }
 
-  .monitor {
+.monitor {
     flex: 1.5;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px; /* 모니터 섹션에 여백 추가 */
     position: relative; /* 자식 요소 위치 기준점*/
-  }
-  .monitor-image {
+}  
+
+.monitor-image {
     max-width: 100%;
     height: auto;
     display: block;
-  }
+}
   
-  .slideshow-container {
+.slideshow-container {
     position: absolute; /* 부모(monitor-section)를 기준으로 위치 지정 */
     top: 6.5%;
     left: 5.75%;
     width: 88.50%;
     height: 66%;
     overflow: hidden; /* 컨테이너 밖으로 이미지가 삐져나가지 않도록 */
-  }
+}
 
-  .slide {
+.slide {
     position: absolute; /* 모든 이미지를 같은 위치에 겹침 */
     width: 100%;
     height: 100%;
@@ -234,42 +236,46 @@ nav {
     
     opacity: 0; /* 기본적으로 모든 이미지를 투명하게 */
     transition: opacity 0.7s ease-in-out; /* 부드러운 전환 효과 (fade) */
-  }
+}
 
-  .slide.is-visible {
+.slide.is-visible {
     opacity: 1; /* 보이도록 설정 */
-  }
+}
 
-  .features-section {
+.features-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 15px; /* 기능 카드 사이의 간격 증가 */
     padding: 20px; /* 기능 카드 섹션에 여백 추가 */
     text-align: left; /* 기능 카드 내부 텍스트 왼쪽 정렬 */
-  }
-  .feature-card {
+}
+
+.feature-card {
     background-color: #ffffff;
     padding: 30px 40px; /* 기능 카드 내부 여백 증가 */
     border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  .feature-card:hover {
+}
+
+.feature-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  }
-  .feature-card h3 {
+}
+
+.feature-card h3 {
     margin: 0 0 10px 0; /* 제목 아래 여백 증가 */
     font-size: 1.3rem; /* 제목 크기 키움 */
     color: #2c3e50;
-  }
-  .feature-card p {
+}
+  
+.feature-card p {
     margin: 0;
     font-size: 1rem; /* 설명 텍스트 크기 키움 */
     color: #5A718D;
-  }
-  
+}
+
   /* 추가된 페이지들의 스타일 */
   .page-2 { background-color: #e9ecef; }
   .page-3 { background-color: #dbe4ff; }
@@ -279,7 +285,7 @@ nav {
 .reasons-section {
     min-height: 100vh;
     box-sizing: border-box;
-    padding: 4rem 0; /* 섹션의 상하 여백 */
+    padding: 4rem 40px; /* 섹션의 상하 여백 */
     width: 100%;
     margin: 0 auto;
     text-align: left;
@@ -351,14 +357,16 @@ nav {
     display: flex;
     flex-direction: column; 
     justify-content: center;
-  }
-  .indicators-content-wrapper {
+}
+
+.indicators-content-wrapper {
     flex-grow: 1; /* 푸터를 제외한 남은 공간을 모두 차지하도록 */
     display: flex;
     flex-direction: column;
     justify-content: center; /* 인디케이터 콘텐츠만 세로 중앙 정렬 */    
-  }
-  .indicators-intro {
+}
+
+.indicators-intro {
     font-size: 1.1rem;
     color: #5A718D;
     line-height: 1.8;
@@ -367,23 +375,23 @@ nav {
     line-height: 1.7;
     text-align: left;
     padding: 40px;
-  }
+}
   
-  .indicators-intro p {
+.indicators-intro p {
     width: 100%;
     margin: 0.5em 0; /* 단락 간격 */
-  }
+}
   
-  .indicators-grid {
+.indicators-grid {
     width: 100%;
     margin-bottom: 80px;
     display: flex;
     justify-content: center; /* 카드들을 가운데 배치 */
     gap: 6rem; /* 카드 사이의 간격 */
     flex-wrap: wrap; /* 화면 작아지면 줄바꿈 */
-  }
+}
   
-  .indicator-card {
+.indicator-card {
     background-color: #fff; /* 카드 배경 */
     width: 280px; /* 카드 너비 */
     height: 280px; /* 카드 높이 (이미지 비율에 맞게 조절 필요) */
@@ -394,29 +402,31 @@ nav {
     justify-content: center; /* 내부 텍스트 세로 중앙 */
     align-items: center; /* 내부 텍스트 가로 중앙 */
     padding: 20px;
-  }
-  .indicator-card h3 {
+}
+
+.indicator-card h3 {
     font-size: 1.2rem;
     color: #2c3e50;
     margin-bottom: 10px;
-  }
-  .indicator-image {
+}
+
+.indicator-image {
     max-width: 98%; /* 이미지 최대 너비를 카드 너비의 80%로 제한 */
     height: auto;   /* 이미지 비율 유지 */
     display: block;   /* 이미지 하단 여백 제거 */
     margin-left: auto; /* 이미지 가운데 정렬 */
     margin-right: auto;/* 이미지 가운데 정렬 */
     box-shadow: 8px 8px 20px 0px rgba(80, 136, 183, 0.15);  
-  }
+}
 
-  .footer {
+.footer {
     width: 100%;
     margin-top: auto;
     padding: 30px 0 20px 0; /* 위아래 여백 */
     border-top: 1px solid #e0e0e0; /* 상단 구분선 */
-  }
+}
   
-  .footer-content {
+.footer-content {
     max-width: 100%; /* 최대 너비 */
     margin: 0 auto; /* 가운데 정렬 */
     padding: 0 140px;
@@ -425,39 +435,39 @@ nav {
     align-items: center; /* 세로 중앙 정렬 */
     flex-wrap: wrap; /* 화면 작아지면 줄바꿈 */
     gap: 20px; /* 요소들 사이 간격 */
-  }
+}
   
-  .footer-logo img {
+.footer-logo img {
     height: 25px;
     width: 107px;
-  }
+}
   
-  .footer-links span {
+.footer-links span {
     margin: 0 15px; /* 링크 사이 간격 */
-  }
+}
   
-  .footer-links a, .footer-info span {
+.footer-links a, .footer-info span {
     color: #555; /* 글자 색상 */
     text-decoration: none; /* 밑줄 제거 */
     font-size: 0.9rem;
-  }
+}
   
-  .footer-links a:hover {
+.footer-links a:hover {
     text-decoration: underline; /* 마우스 올리면 밑줄 */
-  }
+}
   
-  .footer-bottom {
+.footer-bottom {
     text-align: center; /* 가운데 정렬 */
     margin-top: 30px; /* 위쪽 여백 */
     padding-top: 20px; /* 위쪽 여백 */
     border-top: 1px solid #e0e0e0; /* 상단 구분선 */
-  }
+}
   
-  .footer-bottom p {
+.footer-bottom p {
     color: #888; /* 글자 색상 */
     font-size: 0.8rem;
     margin: 0;
-  }
+}
 
 /* --- Scroll Animation --- */
 
