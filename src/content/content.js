@@ -252,7 +252,13 @@ class ContentScript {
         isPurified = !isPurified;
         purifiedContainer.style.display = isPurified ? '' : 'none';
         toggleButton.textContent = isPurified ? '원본' : '순화';
-        textElement.style.setProperty('display', isPurified ? 'none' : 'important');
+        if (isPurified) {
+          // 순화 결과 출력 중일 때, 원본을 확실하게 숨김
+          textElement.style.setProperty('display', 'none', 'important');
+        } else { 
+          // 원본 버튼 눌렀을 때, 원본을 !important로 확실하게 보여줌
+          textElement.style.setProperty('display', 'inline', 'important');
+        }
       };
       let replyButton = null;
       const allButtons = actionsSpan.querySelectorAll('button, div[role="button"]');
