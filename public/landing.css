@@ -153,15 +153,26 @@ nav {
 .guide-section {
     min-height: 100vh;
     box-sizing: border-box;
-    padding: 4rem 0; /* 섹션의 상하 여백 */
+    padding: 1rem 0; /* 섹션의 상하 여백 */
     width: 100%;
     margin: 0 auto;
     text-align: left;
     scroll-snap-align: center;
     /* 콘텐츠를 이 섹션 안에서 중앙 정렬하기 위한 Flexbox 설정 */
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* 가로 정렬 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 80px; /* guide-content-wrapper와 features-section 사이의 간격 */
+}
+
+.guide-content-wrapper {
+    display: flex;
+    flex-direction: column; /* 헤더와 메인(모니터)을 세로로 쌓기 */
     justify-content: center; /* 세로 중앙 정렬 */
+    align-items: center; /* 가로 중앙 정렬 */
+    flex: 1.5; /* features-section과의 비율 (예: 1.5 : 1) */
+    max-width: 60%; /* 너무 넓어지지 않도록 최대 너비 제한 */
 }
 
 .guide-header {
@@ -189,12 +200,13 @@ nav {
 .guide-main {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 80px; /* 좌우 섹션 사이의 간격 증가 */
     width: 100%; /* guide-container 내부에서 전체 너비 사용 */
 }
 
   .guide-main > .monitor-wrapper {
-    flex: 1.5; /* 기존 monitor-section의 너비 비율을 그대로 가져옴 */
+    max-width: 100%;
 }
 
 .monitor-wrapper {
@@ -353,7 +365,7 @@ nav {
 /* --- indicators Section --- */
 .indicators-section {
     min-height: 100vh;
-    padding: 80px 0px 0px 0px; /* 섹션 내부 여백 */
+    padding: 64px 40px; /* 섹션 내부 여백 */
     display: flex;
     flex-direction: column; 
     justify-content: center;
@@ -387,7 +399,7 @@ nav {
     margin-bottom: 80px;
     display: flex;
     justify-content: center; /* 카드들을 가운데 배치 */
-    gap: 6rem; /* 카드 사이의 간격 */
+    gap: 3rem; /* 카드 사이의 간격 */
     flex-wrap: wrap; /* 화면 작아지면 줄바꿈 */
 }
   
