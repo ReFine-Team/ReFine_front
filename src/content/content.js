@@ -154,31 +154,75 @@ class ContentScript {
   }
 
   async processBatches() {
-    this.isProcessing = true;
-    if (this.commentQueue.length === 0) { this.isProcessing = false; return; }
-    const chunk = this.commentQueue.splice(0, 5);
-    chunk.forEach(comment => {
-      const textElement = comment.element.querySelector('#content-text, .u_cbox_contents, ._a9zr span._ap3a[dir="auto"]');
-      if (textElement) {
-        comment.textElement = textElement;
-        const loadingElement = document.createElement('div');
-        loadingElement.className = 'know-comment-ai-loading';
-        loadingElement.textContent = '댓글 분석 중... 🤖';
-        textElement.parentNode.insertBefore(loadingElement, textElement);
-        comment.loadingElement = loadingElement;
+  this.isProcessing = true;
+
+  if (this.commentQueue.length === 0) {
+    this.isProcessing = false;
+    return;
+  }
+
+  const chunk = this.commentQueue.splice(0, 5);
+
+  chunk.forEach(comment => {
+    const textElement = comment.element.querySelector('#content-text, .u_cbox_contents, span._ap3a[dir="auto"]');
+    if (textElement) {
+      comment.textElement = textElement;
+      const loadingElement = document.createElement('div');
+      loadingElement.className = 'know-comment-ai-loading';
+      loadingElement.textContent = '댓글 분석 중… 🤖';
+      textElement.parentNode.insertBefore(loadingElement, textElement);
+      comment.loadingElement = loadingElement;
+    }
+  });
+
+  console.log(`📤 ${chunk.length}개 묶음을 병렬로 API에 전송합니다.`);
+  const promises = chunk.map(comment => analyzeComment(comment));
+  const apiResults = await Promise.all(promises);
+
+  console.log(`📥 ${chunk.length}개 묶음의 응답을 모두 수신했습니다.`);
+  
+  apiResults.forEach((result, index) => {
+    const originalComment = chunk[index];
+    if (originalComment.loadingElement) originalComment.loadingElement.remove();
+    if (!originalComment.textElement) return;
+
+    const textElement = originalComment.textElement;
+
+    if (result && result.status === 'purified') {
+      
+      // 원본 텍스트와 순화된 텍스트 가져옴
+      const originalText = originalComment.text;
+      const purifiedText = result.purified_text;
+
+      // 모든 공백을 제거한 텍스트를 만듦.
+      const originalNormalized = originalText.replace(/\s+/g, '');
+      const purifiedNormalized = purifiedText.replace(/\s+/g, '');
+
+      // 과도한 잘림 검증 - 길이 비율이 50% 미만인 경우 원본 유지
+      const lenRatio = purifiedText.length / originalText.length;
+      if (originalText.length > 5 && lenRatio < 0.7) {
+        console.warn(`⚠️ 순화 실패 (과도한 잘림 감지, ${Math.round(lenRatio * 100)}%) → 원본 유지`, {
+          원본: originalText,
+          순화본: purifiedText
+        });
+        textElement.style.setProperty('display', 'inline', 'important');
+        return;
       }
-    });
-    const promises = chunk.map(comment => analyzeComment(comment));
-    const apiResults = await Promise.all(promises);
-    apiResults.forEach((result, index) => {
-      const originalComment = chunk[index];
-      if (originalComment.loadingElement) originalComment.loadingElement.remove();
-      if (!originalComment.textElement) return;
-      const textElement = originalComment.textElement;
-      if (result && result.status === 'purified') {
-        const purifiedContainer = document.createElement('div');
+
+      // 두 텍스트가 완전히 같거나, 공백만 다른지 비교
+      if (originalText === purifiedText || originalNormalized === purifiedNormalized) {
+        
+        // 순화가 불필요한 경우: 콘솔에 경고를 띄우고 원본을 표시
+        console.warn('순화 실패 (결과 동일 또는 띄어쓰기만 변경):', originalText);
+        textElement.style.setProperty('display', 'inline', 'important');
+
+      } else {
+        
+        // 순화가 필요한 경우에만 UI 생성
+        const purifiedContainer = document.createElement('span');
         purifiedContainer.className = 'know-comment-ai-purified-container';
         purifiedContainer.innerHTML = `<span style="font-size: 12px; color: #6694FF;">[순화된 댓글입니다]</span><br>${result.purified_text}`;
+        
         const hostname = window.location.hostname;
         if (hostname.includes('youtube.com') || hostname.includes('naver.com')) {
           purifiedContainer.style.fontSize = '14px';
@@ -186,14 +230,23 @@ class ContentScript {
         } else if (hostname.includes('instagram.com')) {
           this.createInstagramToggleButton(textElement, purifiedContainer);
         }
+        
         textElement.parentNode.insertBefore(purifiedContainer, textElement);
-      } else {
-        textElement.style.setProperty('display', 'inline', 'important');
       }
-    });
-    this.isProcessing = false;
-    if (this.commentQueue.length > 0) this.startBatchProcessing();
+
+    } else {
+      // 'not_malicious' 상태일 때: 원본을 표시
+      textElement.style.setProperty('display', 'inline', 'important');
+    }
+  });
+
+  this.isProcessing = false;
+  if (this.commentQueue.length > 0) {
+    this.startBatchProcessing();
+  } else {
+    console.log('✅ 모든 묶음 처리가 완료되었습니다.');
   }
+}
 
   createToggleSwitch(originalComment, purifiedContainer, hostname) {
     const textElement = originalComment.textElement;
